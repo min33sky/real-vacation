@@ -6,7 +6,7 @@ interface Props {
   label: string;
   initialImage?: string;
   sizeLimit?: number;
-  onChangePicture: () => void;
+  onChangePicture: (image: any) => void;
 }
 
 export default function ImageUpload({
@@ -17,9 +17,9 @@ export default function ImageUpload({
 }: Props) {
   const [image, setImage] = useState(initialImage);
 
-  const handleOnChangePicture: React.ChangeEventHandler<HTMLInputElement> = (
-    e,
-  ) => {
+  const handleOnChangePicture: React.ChangeEventHandler<
+    HTMLInputElement
+  > = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
@@ -30,6 +30,7 @@ export default function ImageUpload({
       const fileName = file.name.split('.')[0];
       const previewImage = URL.createObjectURL(e.target.files[0]);
       setImage(previewImage);
+      await onChangePicture(file);
     }
   };
 

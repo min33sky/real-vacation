@@ -8,8 +8,6 @@ interface Props {
 }
 
 export default function Home({ homes }: Props) {
-  console.log('first homes', homes);
-
   return (
     <MainLayout>
       <h1 className="text-xl font-medium text-gray-800">

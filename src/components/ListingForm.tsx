@@ -5,6 +5,9 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ImageUpload from './ImageUpload';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
+import { nanoid } from 'nanoid';
+import axios from 'axios';
+import { supabase } from '@/lib/supabase';
 
 const homeSchema = z.object({
   title: z.string().min(1, { message: 'Title Required' }).max(100).trim(),
@@ -38,12 +41,46 @@ export default function ListingForm({
 
   const [imageUrl, setImageUrl] = useState('');
 
-  const uploadImage = () => {};
+  const uploadImage = async (image: File) => {
+    if (!image) return;
+
+    let toastId;
+    try {
+      console.log('iiiiiiiiiiiiii: ', image);
+
+      const ext = image.name.split('.').pop();
+      const path = `${image.name.split('.')[0]}_${nanoid()}.${ext}`;
+
+      toastId = toast.loading('Uploading...');
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
+        .upload(path, image);
+
+      console.log('uploadData: ', uploadData);
+
+      const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(
+        '.co',
+        '.in',
+      )}/storage/v1/object/public/${uploadData?.Key}`;
+
+      setImageUrl(url);
+      console.log('따ㅏㅏㅏㅏㅏㅏㅏㅏ악:', url);
+      toast.success('Successfully uploaded', { id: toastId });
+    } catch (e) {
+      toast.error('Unable to upload', { id: toastId });
+      setImageUrl('');
+    } finally {
+    }
+  };
 
   const onValid: SubmitHandler<z.infer<typeof homeSchema>> = async (data) => {
     console.log(data);
     let toastId = toast.loading('Submitting...');
-    await onSubmit(data);
+    await onSubmit({
+      image: imageUrl,
+      ...data,
+    });
     toast.success('Successfully submitted', { id: toastId });
     // Redirect user
     if (redirectPath) {
