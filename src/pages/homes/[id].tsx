@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { Home } from '@prisma/client';
+import { useRouter } from 'next/router';
 
 interface Props {
   home: Home;
@@ -10,6 +11,14 @@ interface Props {
 
 export default function HomeDetailPage({ home }: Props) {
   console.log('Home: ', home);
+
+  // Retrieve the Next.js router
+  const router = useRouter();
+
+  // Fallback version - "fallback: true" in getStaticPaths
+  if (router.isFallback) {
+    return 'Loading...';
+  }
 
   return (
     <MainLayout>
@@ -64,7 +73,7 @@ export async function getStaticPaths() {
     params: { id: home.id },
   }));
 
-  return { paths, fallback: false };
+  return { paths, fallback: true };
 }
 
 export async function getStaticProps({ params }: { params: any }) {
