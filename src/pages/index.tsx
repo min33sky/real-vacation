@@ -1,8 +1,13 @@
 import Grid from '@/components/Grid';
 import MainLayout from '@/components/layouts/MainLayout';
-import homes from '../data.json';
+// import homes from '../data.json';
+import { prisma } from '@/lib/prisma';
 
-export default function Home() {
+interface Props {
+  homes: any;
+}
+
+export default function Home({ homes }: Props) {
   console.log('first homes', homes);
 
   return (
@@ -19,4 +24,15 @@ export default function Home() {
       </div>
     </MainLayout>
   );
+}
+
+export async function getServerSideProps() {
+  const homes = await prisma.home.findMany({});
+
+  //? Prisma의 DateTime Field는 직렬화해서 보내야한다.
+  return {
+    props: {
+      homes: JSON.parse(JSON.stringify(homes)),
+    },
+  };
 }

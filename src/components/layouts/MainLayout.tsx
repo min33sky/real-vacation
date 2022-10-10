@@ -9,7 +9,7 @@ export default function MainLayout({ children }: Props) {
   return (
     <div className="h-screen bg-slate-200 flex flex-col">
       <Header />
-      <div>{children}</div>
+      <main className="flex-grow container mx-auto">{children}</main>
     </div>
   );
 }
