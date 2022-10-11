@@ -6,8 +6,8 @@ import ImageUpload from './ImageUpload';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { nanoid } from 'nanoid';
-import axios from 'axios';
 import { supabase } from '@/lib/supabase';
+import { Home } from '@prisma/client';
 
 const homeSchema = z.object({
   title: z.string().min(1, { message: 'Title Required' }).max(100).trim(),
@@ -18,17 +18,25 @@ const homeSchema = z.object({
   baths: z.number().min(1),
 });
 
+export type HomeInput = z.infer<typeof homeSchema>;
+
 interface Props {
+  initialValues?: Home;
   buttonText: string;
   redirectPath: string;
   onSubmit: (data: any) => void;
 }
 
 export default function ListingForm({
+  initialValues,
   buttonText,
   redirectPath,
   onSubmit,
 }: Props) {
+  const { image, title, description, price, guests, beds, baths } =
+    initialValues ?? {};
+  console.log('initialValues: ', initialValues);
+
   const router = useRouter();
 
   const {
@@ -39,15 +47,13 @@ export default function ListingForm({
     resolver: zodResolver(homeSchema),
   });
 
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState(image ? image : '');
 
   const uploadImage = async (image: File) => {
     if (!image) return;
 
     let toastId;
     try {
-      console.log('iiiiiiiiiiiiii: ', image);
-
       const ext = image.name.split('.').pop();
       const path = `${image.name.split('.')[0]}_${nanoid()}.${ext}`;
 
@@ -57,15 +63,12 @@ export default function ListingForm({
         .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
         .upload(path, image);
 
-      console.log('uploadData: ', uploadData);
-
       const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(
         '.co',
         '.in',
       )}/storage/v1/object/public/${uploadData?.Key}`;
 
       setImageUrl(url);
-      console.log('따ㅏㅏㅏㅏㅏㅏㅏㅏ악:', url);
       toast.success('Successfully uploaded', { id: toastId });
     } catch (e) {
       toast.error('Unable to upload', { id: toastId });
@@ -91,7 +94,11 @@ export default function ListingForm({
   return (
     <div>
       <div className="mb-8">
-        <ImageUpload label="upload" onChangePicture={uploadImage} />
+        <ImageUpload
+          label="upload"
+          initialImage={imageUrl}
+          onChangePicture={uploadImage}
+        />
       </div>
 
       <form
@@ -104,7 +111,9 @@ export default function ListingForm({
           type="text"
           name="title"
           placeholder="Entire rental unit = Amsterdam"
+          defaultValue={title}
         />
+
         <label htmlFor="">Description</label>
         <textarea
           {...register('description')}
@@ -112,7 +121,9 @@ export default function ListingForm({
           placeholder="Very charming and modern apartment in Amsterdam..."
           rows={5}
           className="resize-none outline-none"
+          defaultValue={description}
         />
+
         <label htmlFor="">Price</label>
         <input
           {...register('price', { valueAsNumber: true })}
@@ -120,8 +131,10 @@ export default function ListingForm({
           name="price"
           min={0}
           placeholder="100"
+          defaultValue={price}
         />
         <p>{errors.price?.message}</p>
+
         <div className="flex flex-wrap justify-between gap-2">
           <label htmlFor="">Guests</label>
           <input
@@ -131,6 +144,7 @@ export default function ListingForm({
             min={0}
             placeholder="2"
             className="flex-1"
+            defaultValue={guests}
           />
           <label htmlFor="">Beds</label>
           <input
@@ -140,6 +154,7 @@ export default function ListingForm({
             min={0}
             placeholder="1"
             className="flex-1"
+            defaultValue={beds}
           />
           <label htmlFor="">Baths</label>
           <input
@@ -149,6 +164,7 @@ export default function ListingForm({
             min={0}
             placeholder="1"
             className="flex-1"
+            defaultValue={baths}
           />
         </div>
 
