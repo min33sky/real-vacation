@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer';
 import Handlebars from 'handlebars';
 import path from 'path';
 import { readFileSync } from 'fs';
+import GoogleProvider from 'next-auth/providers/google';
 
 // Email sender
 const transporter = nodemailer.createTransport({
@@ -82,6 +83,10 @@ export default NextAuth({
       sendVerificationRequest,
       maxAge: 10 * 60, // Magic links are valid for 10 min only
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_ID!,
+      clientSecret: process.env.GOOGLE_SECRET!,
+    }),
   ],
   pages: {
     signIn: '/',
@@ -89,5 +94,6 @@ export default NextAuth({
     error: '/',
     verifyRequest: '/',
   },
+  secret: process.env.NEXTAUTH_SECRET,
   events: { createUser: sendWelcomeEmail },
 });

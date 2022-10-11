@@ -21,6 +21,14 @@ export default function AuthModal({ show, onClose }: Props) {
     resolver: zodResolver(emailSchema),
   });
 
+  const signInWithGoogle = () => {
+    toast.loading('Redirecting...');
+    // Perform sign in
+    signIn('google', {
+      callbackUrl: window.location.href,
+    });
+  };
+
   const signInWithEmail = async ({ email }: { email: string }) => {
     let toastId;
     try {
@@ -62,6 +70,14 @@ export default function AuthModal({ show, onClose }: Props) {
       <div onClick={onClose} className="fixed h-full w-full bg-black/50"></div>
       <div className="flex flex-col justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md h-1/2 px-10 py-8 bg-white z-50">
         <h1 className="text-center">Auth Modal</h1>
+        {/* Sign with Google */}
+        <button
+          onClick={() => signInWithGoogle()}
+          className="h-[46px] w-full mx-auto border rounded-md p-2 flex justify-center items-center space-x-2 text-gray-500 hover:text-gray-600 hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-500 disabled:hover:bg-transparent disabled:hover:border-gray-200 transition-colors"
+        >
+          <span>Sign {showSignIn ? 'in' : 'up'} with Google</span>
+        </button>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col space-y-4"
