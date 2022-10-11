@@ -2,6 +2,8 @@ import MainLayout from '@/components/layouts/MainLayout';
 import ListingForm from '@/components/ListingForm';
 import React from 'react';
 import axios from 'axios';
+import { GetServerSidePropsContext } from 'next';
+import { getSession } from 'next-auth/react';
 
 export default function Create() {
   const addHome = async (data: any) => {
@@ -27,4 +29,20 @@ export default function Create() {
       </div>
     </MainLayout>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  // Check if user is authenticated
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/?next_url=/create',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
 }

@@ -10,7 +10,7 @@ interface Props {
 export default function MainLayout({ children }: Props) {
   const [showModal, setShowModal] = useState(false);
 
-  const showAuthModal = () => {
+  const openModal = () => {
     setShowModal(true);
   };
 
@@ -20,7 +20,7 @@ export default function MainLayout({ children }: Props) {
 
   return (
     <div className="h-screen bg-slate-200 flex flex-col">
-      <Header showModal={showAuthModal} />
+      <Header openModal={openModal} />
       <main className="flex-grow container mx-auto">{children}</main>
       {showModal && <AuthModal show={showModal} onClose={closeModal} />}
       <Toaster />
