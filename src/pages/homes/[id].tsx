@@ -1,19 +1,53 @@
 import MainLayout from '@/components/layouts/MainLayout';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { prisma } from '@/lib/prisma';
 import { Home } from '@prisma/client';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 interface Props {
   home: Home;
 }
 
 export default function HomeDetailPage({ home }: Props) {
-  console.log('Home: ', home);
-
-  // Retrieve the Next.js router
   const router = useRouter();
+
+  const { data: session } = useSession();
+  const [isOwner, setIsOwner] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteHome = async () => {
+    let toastId;
+    try {
+      toastId = toast.loading('Deleting...');
+      setDeleting(true);
+      // Delete home from DB
+      await axios.delete(`/api/homes/${home.id}`);
+      // Redirect user
+      toast.success('Successfully deleted', { id: toastId });
+      router.push('/homes');
+    } catch (e) {
+      console.log(e);
+      toast.error('Unable to delete home', { id: toastId });
+      setDeleting(false);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (session?.user) {
+        try {
+          const response = await axios.get(`/api/homes/${home.id}/owner`);
+          setIsOwner(response.data.email === session.user.email);
+        } catch (error) {
+          setIsOwner(false);
+        }
+      }
+    })();
+  }, [home, session?.user]);
 
   // Fallback version - "fallback: true" in getStaticPaths
   if (router.isFallback) {
@@ -43,6 +77,28 @@ export default function HomeDetailPage({ home }: Props) {
               </li>
             </ol>
           </div>
+
+          {isOwner ? (
+            <div className="...">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => router.push(`/homes/${home.id}/edit`)}
+                className="...."
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={deleteHome}
+                className="..."
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-6 relative aspect-w-16 aspect-h-9 bg-gray-200 rounded-lg shadow-md overflow-hidden">
