@@ -72,16 +72,16 @@ export default NextAuth({
   providers: [
     EmailProvider({
       // ? sendVerificationRequest를 사용해 아래 코드를 대체함
-      // server: {
-      //   host: process.env.EMAIL_SERVER_HOST,
-      //   port: Number(process.env.EMAIL_SERVER_PORT),
-      //   auth: {
-      //     user: process.env.EMAIL_SERVER_USER,
-      //     pass: process.env.EMAIL_SERVER_PASSWORD,
-      //   },
-      // },
-      // from: process.env.EMAIL_FROM,
-      sendVerificationRequest,
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: Number(process.env.EMAIL_SERVER_PORT),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+      // sendVerificationRequest,
       maxAge: 10 * 60, // Magic links are valid for 10 min only
     }),
     GoogleProvider({
