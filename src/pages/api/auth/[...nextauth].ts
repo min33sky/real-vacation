@@ -71,7 +71,7 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     EmailProvider({
-      // ? sendVerificationRequest를 사용해 아래 코드를 대체함
+      // ? sendVerificationRequest를 사용해 아래 코드를 대체할 수 있는데 Vercel에서 안보내진다 머지
       server: {
         host: process.env.EMAIL_SERVER_HOST,
         port: Number(process.env.EMAIL_SERVER_PORT),

@@ -132,6 +132,9 @@ export async function getStaticPaths() {
   return { paths, fallback: true };
 }
 
+//TODO: Production에서는 값을 업데이트했을 때 기존에 빌드한 페이지가 보여줘서 ssr로 교체해야할듯??
+//? Development에서는 매번 요청마다 페이지를 새로 만드니 업데이트가 잘 되는것처럼 보인다.
+//? 아니면 react-query로 optimistic update를 해서 바꾸는 ㅂ방법도 있을듯
 export async function getStaticProps({ params }: { params: any }) {
   const home = await prisma.home.findUnique({
     where: {
